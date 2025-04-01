@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Emotional Hub - </title>
+  <title>Emotional Hub - Categorías</title>
   <style>
+    /* Estilos generales */
     body {
       background: #000;
       color: #fff;
@@ -29,6 +30,10 @@
       border-radius: 10px;
       will-change: text-shadow;
     }
+    @keyframes titleGlow {
+      from { text-shadow: 0 0 10px #fff; }
+      to   { text-shadow: 0 0 20px #fff; }
+    }
     .grid {
       display: flex;
       flex-wrap: nowrap;
@@ -40,6 +45,16 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
       scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);
+    }
+    .grid::-webkit-scrollbar {
+      height: 8px;
+    }
+    .grid::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+    }
+    .grid::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
     }
     .media-card {
       position: relative;
@@ -75,25 +90,6 @@
       border: none;
       object-fit: cover;
     }
-    @keyframes titleGlow {
-      from { text-shadow: 0 0 10px #fff; }
-      to   { text-shadow: 0 0 20px #fff; }
-    }
-    .grid::-webkit-scrollbar {
-      height: 8px;
-    }
-    .grid::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.1);
-    }
-    .grid::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.3);
-      border-radius: 4px;
-    }
-    @media (max-width:768px) {
-      .grid { padding: 10px; gap: 15px; }
-      .media-card { flex: 0 0 300px; height: 500px; }
-      .section-title { font-size: 2em; }
-    }
     .refresh-info {
       color: #888;
       text-align: center;
@@ -122,6 +118,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 2;
     }
     .play-button:before {
       content: "▶";
@@ -129,6 +126,23 @@
       font-size: 24px;
     }
     .back-button { display: none; }
+    /* Spinner de carga */
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      z-index: 5;
+    }
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
     /* Redes Sociales */
     .social-section {
       margin: 50px 0;
@@ -355,7 +369,7 @@
 </head>
 <body>
   <div class="refresh-info">
-    esta pagina fue creada por si estas triste 
+    Los videos se muestran una sola vez en esta sesión.
   </div>
 
   <!-- Secciones de Videos -->
@@ -397,7 +411,7 @@
       <div class="social-card whatsapp">
         <div class="social-icon">➤</div>
         <div class="social-name">Whatsapp</div>
-        <div class="social-stats">0 miembros</div>
+        <div class="social-stats">3.5K miembros</div>
         <button class="follow-button" data-link="https://whatsapp.com/channel/0029VbAlKu2HLHQfOSICf31R">Unirse</button>
       </div>
       <div class="social-card twitch">
@@ -413,7 +427,7 @@
   <div id="qr-modal" class="qr-modal">
     <div class="qr-modal-content">
       <span class="close">&times;</span>
-      <img src="imagenes/WhatsApp Image 2025-03-31 at 8.53.44 PM.jpeg" alt="Código QR Yape">
+      <img src="ruta-a-tu-qr.png" alt="Código QR Yape">
     </div>
   </div>
 
@@ -513,7 +527,7 @@
       currentPlaying = null;
     }
 
-    // Placeholder para YouTube
+    // Placeholder para YouTube (agrega spinner y lo oculta en onReady)
     function createYouTubePlaceholder(id) {
       const card = document.createElement('div');
       card.className = 'media-card';
@@ -527,6 +541,13 @@
         }
         const youtubeCard = document.createElement('div');
         youtubeCard.className = 'media-card';
+        youtubeCard.style.position = 'relative';
+
+        // Spinner de carga
+        const spinner = document.createElement('div');
+        spinner.className = 'spinner';
+        youtubeCard.appendChild(spinner);
+
         const containerId = 'player_' + id + '_' + Date.now();
         const playerContainer = document.createElement('div');
         playerContainer.id = containerId;
@@ -544,6 +565,7 @@
           events: {
             onReady: (event) => {
               event.target.playVideo();
+              spinner.style.display = 'none';
             },
             onStateChange: (event) => {
               if (event.data === YT.PlayerState.ENDED) {
@@ -568,7 +590,7 @@
       return card;
     }
 
-    // Placeholder para TikTok
+    // Placeholder para TikTok (spinner se oculta al cargar el iframe)
     function createTikTokPlaceholder(data) {
       const card = document.createElement('div');
       card.className = 'media-card';
@@ -622,16 +644,25 @@
       return card;
     }
 
-    // Iframe directo de TikTok sin barra de desplazamiento
+    // Iframe directo de TikTok sin barra de desplazamiento y con audio en móviles
     function createTikTokIframe(data) {
       const card = document.createElement('div');
       card.className = 'media-card';
-      card.innerHTML = `
+      card.style.position = 'relative';
+
+      // Spinner de carga
+      const spinner = document.createElement('div');
+      spinner.className = 'spinner';
+      card.appendChild(spinner);
+
+      // Se agregan parámetros playsinline=1 y muted=0 para forzar que se reproduzca con audio
+      card.innerHTML += `
         <iframe
-          src="https://www.tiktok.com/embed/v2/${data.id}?lang=es&show_text=0"
+          src="https://www.tiktok.com/embed/v2/${data.id}?lang=es&show_text=0&playsinline=1&muted=0"
           style="width:100%;height:100%;border:none;overflow:hidden;"
           scrolling="no"
           allow="autoplay"
+          onload="this.parentNode.querySelector('.spinner').style.display='none';"
         ></iframe>
       `;
       return card;
@@ -749,6 +780,6 @@
       });
     });
   </script>
-  <a><center>Descubre contenido increíble! Si este tema te interesa, puedo personalizarlo aún más. Dime qué categorías te gustaría que agregue y, si veo que hay suficiente interés, ¡incluso agregaré videos que me mandes, buscare mas videos para agregar</center></a>
+  <a><center>Descubre contenido increíble! Si este tema te interesa, puedo personalizarlo aún más. Dime qué categorías te gustaría que agregue y, si veo que hay suficiente interés, ¡incluso agregaré videos que me mandes</center></a>
 </body>
 </html>
