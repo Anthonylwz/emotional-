@@ -557,13 +557,14 @@
         const player = new YT.Player(containerId, {
           videoId: id,
           playerVars: {
-            autoplay: 1,
+            // Se elimina autoplay para evitar reproducción automática con sonido bloqueado en móviles
             controls: 1,
             rel: 0,
             modestbranding: 1
           },
           events: {
             onReady: (event) => {
+              // La reproducción se inicia tras la acción del usuario
               event.target.playVideo();
               spinner.style.display = 'none';
             },
@@ -655,7 +656,7 @@
       spinner.className = 'spinner';
       card.appendChild(spinner);
 
-      // Se agregan parámetros playsinline=1 y muted=0 para forzar que se reproduzca con audio
+      // Se agregan parámetros playsinline=1 y muted=0; al cargarse tras el click, el navegador permitirá el audio
       card.innerHTML += `
         <iframe
           src="https://www.tiktok.com/embed/v2/${data.id}?lang=es&show_text=0&playsinline=1&muted=0"
