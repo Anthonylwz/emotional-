@@ -69,11 +69,13 @@
       background-position: center;
       will-change: transform;
     }
+    /* Dimensiones para secciones YouTube */
     .songs-spanish .media-card,
     .songs-english .media-card {
       flex: 0 0 500px;
       height: 300px;
     }
+    /* Dimensiones para secciones TikTok */
     .tiktok-section .media-card,
     .hop-core-section .media-card {
       width: 350px;
@@ -142,6 +144,33 @@
     }
     @keyframes spin {
       to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    /* Flechas de navegación (solo para desktop) */
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      color: #fff;
+      font-size: 2em;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 10;
+      display: none;
+    }
+    .nav-arrow.left {
+      left: 10px;
+    }
+    .nav-arrow.right {
+      right: 10px;
+    }
+    @media (min-width: 1024px) {
+      .nav-arrow {
+        display: block;
+      }
     }
     /* Redes Sociales */
     .social-section {
@@ -375,26 +404,34 @@
   <!-- Secciones de Videos -->
   <section class="category-section songs-spanish">
     <h2 class="section-title">Top Canciones Español</h2>
+    <button class="nav-arrow left" data-target="spanish-songs-grid" data-step="2">&#8592;</button>
     <div id="spanish-songs-grid" class="grid"></div>
     <button class="load-more" data-section="spanish-songs-grid">Cargar más</button>
+    <button class="nav-arrow right" data-target="spanish-songs-grid" data-step="2">&#8594;</button>
   </section>
 
   <section class="category-section songs-english">
     <h2 class="section-title">Top Songs English</h2>
+    <button class="nav-arrow left" data-target="english-songs-grid" data-step="2">&#8592;</button>
     <div id="english-songs-grid" class="grid"></div>
     <button class="load-more" data-section="english-songs-grid">Cargar más</button>
+    <button class="nav-arrow right" data-target="english-songs-grid" data-step="2">&#8594;</button>
   </section>
 
   <section class="category-section hop-core-section">
     <h2 class="section-title">Hop Core Videos</h2>
+    <button class="nav-arrow left" data-target="hop-core-grid" data-step="3">&#8592;</button>
     <div id="hop-core-grid" class="grid"></div>
     <button class="load-more" data-section="hop-core-grid">Cargar más</button>
+    <button class="nav-arrow right" data-target="hop-core-grid" data-step="3">&#8594;</button>
   </section>
 
   <section class="category-section tiktok-section">
     <h2 class="section-title">TikTok Viral</h2>
+    <button class="nav-arrow left" data-target="tiktok-grid" data-step="3">&#8592;</button>
     <div id="tiktok-grid" class="grid"></div>
     <button class="load-more" data-section="tiktok-grid">Cargar más</button>
+    <button class="nav-arrow right" data-target="tiktok-grid" data-step="3">&#8594;</button>
   </section>
   
   <!-- Redes Sociales -->
@@ -464,7 +501,17 @@
         { id:"7358620709431610630", user:"4life_arg" },
         { id:"7486327554324892950", user:"frases_de_triline1" },
         { id:"7474323098951486725", user:"lycs_bedumb" },
-        { id:"7412154285095505158", user:"sanchez.nicolas" }
+        { id:"7412154285095505158", user:"sanchez.nicolas" },
+        { id:"7471070704415378710", user:"narrador_ocult0_" },
+        { id:"7396268718835125509", user:"valulove54"},
+        { id:"7487627588521823543", user:"music4.444"},
+        { id:"7114431091968199962", user:"kobssantos"}, 
+        { id:"7466928105647607046", user:"melhor_vibes"}, 
+        { id:"7476709350300519735", user:"songsyedits4500"},
+        { id:"7466928105647607046", user:"melhor_vibes"},
+        { id:"7484218795473521928", user:"gppkokk__"},
+        { id:"7488231473254862085", user:"fraasesrojas"},
+        { id:"7480711708487486738", user:"xsmvl"}
       ],
       tiktokVideos: [
         { id:"7478029000820919574", user:"elartedeempezar" },
@@ -527,7 +574,7 @@
       currentPlaying = null;
     }
 
-    // Placeholder para YouTube (agrega spinner y lo oculta en onReady)
+    // Placeholder para YouTube
     function createYouTubePlaceholder(id) {
       const card = document.createElement('div');
       card.className = 'media-card';
@@ -557,14 +604,12 @@
         const player = new YT.Player(containerId, {
           videoId: id,
           playerVars: {
-            // Se elimina autoplay para evitar reproducción automática con sonido bloqueado en móviles
             controls: 1,
             rel: 0,
             modestbranding: 1
           },
           events: {
             onReady: (event) => {
-              // La reproducción se inicia tras la acción del usuario
               event.target.playVideo();
               spinner.style.display = 'none';
             },
@@ -591,7 +636,7 @@
       return card;
     }
 
-    // Placeholder para TikTok (spinner se oculta al cargar el iframe)
+    // Placeholder para TikTok
     function createTikTokPlaceholder(data) {
       const card = document.createElement('div');
       card.className = 'media-card';
@@ -645,18 +690,16 @@
       return card;
     }
 
-    // Iframe directo de TikTok sin barra de desplazamiento y con audio en móviles
+    // Iframe para TikTok
     function createTikTokIframe(data) {
       const card = document.createElement('div');
       card.className = 'media-card';
       card.style.position = 'relative';
 
-      // Spinner de carga
       const spinner = document.createElement('div');
       spinner.className = 'spinner';
       card.appendChild(spinner);
 
-      // Se agregan parámetros playsinline=1 y muted=0; al cargarse tras el click, el navegador permitirá el audio
       card.innerHTML += `
         <iframe
           src="https://www.tiktok.com/embed/v2/${data.id}?lang=es&show_text=0&playsinline=1&muted=0"
@@ -669,7 +712,7 @@
       return card;
     }
 
-    // Intersection Observer para miniaturas
+    // Intersection Observer para cargar miniaturas
     let observer;
     function setupIntersectionObserver() {
       observer = new IntersectionObserver((entries) => {
@@ -700,7 +743,7 @@
       }
     }
 
-    // Cargar un lote de videos
+    // Cargar lote de videos en una sección
     async function loadBatch(sectionId, videos) {
       const section = document.getElementById(sectionId);
       if (!section) return;
@@ -725,16 +768,76 @@
       section.appendChild(fragment);
       config.currentIndexes[sectionId] += config.batchSize;
 
+      // Si se han cargado todos los videos, se oculta el botón "Cargar más"
       const loadMoreButton = document.querySelector(`button.load-more[data-section="${sectionId}"]`);
       if (config.currentIndexes[sectionId] >= videos.length && loadMoreButton) {
         loadMoreButton.style.display = 'none';
       }
     }
 
-    // Listeners
+    // Desplazamiento con flechas
+    function scrollGrid(gridId, step) {
+      const grid = document.getElementById(gridId);
+      if (!grid) return;
+      const cardWidth = grid.querySelector('.media-card').offsetWidth + 30;
+      grid.scrollBy({ left: cardWidth * step, behavior: 'smooth' });
+    }
+
+    // Eventos de flechas
+    document.querySelectorAll('.nav-arrow').forEach(arrow => {
+      arrow.addEventListener('click', () => {
+        const target = arrow.getAttribute('data-target');
+        const step = parseInt(arrow.getAttribute('data-step'));
+        if (arrow.classList.contains('left')) {
+          scrollGrid(target, -step);
+        } else {
+          scrollGrid(target, step);
+        }
+      });
+    });
+
+    // Variable para saber qué sección estaba activa
+    let lastActiveSection = null;
+    // Función para reiniciar una sección (vuelve a cargar desde cero) y revierte el video activo si existe en ella
+    function resetSection(sectionId) {
+      const grid = document.getElementById(sectionId);
+      if (grid) {
+        if (currentPlaying && grid.contains(currentPlaying.card)) {
+          revertVideo(currentPlaying);
+        }
+        grid.innerHTML = "";
+        config.currentIndexes[sectionId] = 0;
+        const loadMoreBtn = document.querySelector(`button.load-more[data-section="${sectionId}"]`);
+        if (loadMoreBtn) {
+          loadMoreBtn.style.display = 'block';
+        }
+        switch (sectionId) {
+          case 'spanish-songs-grid':
+            loadBatch(sectionId, processedData.spanishSongs);
+            break;
+          case 'english-songs-grid':
+            loadBatch(sectionId, processedData.englishSongs);
+            break;
+          case 'hop-core-grid':
+            loadBatch(sectionId, processedData.hopCoreVideos);
+            break;
+          case 'tiktok-grid':
+            loadBatch(sectionId, processedData.tiktokVideos);
+            break;
+        }
+      }
+    }
+
+    // Listener para "Cargar más"
     document.querySelectorAll('.load-more').forEach(button => {
       button.addEventListener('click', () => {
         const sectionId = button.getAttribute('data-section');
+        // Si cambiamos de sección, reiniciamos la anterior
+        if (lastActiveSection && lastActiveSection !== sectionId) {
+          resetSection(lastActiveSection);
+        }
+        lastActiveSection = sectionId;
+        // No se revierte el video si estamos en la misma sección para que no se detenga la reproducción
         switch (sectionId) {
           case 'spanish-songs-grid':
             loadBatch(sectionId, processedData.spanishSongs);
@@ -781,6 +884,10 @@
       });
     });
   </script>
-  <a><center>Descubre contenido increíble! Si este tema te interesa, puedo personalizarlo aún más. Dime qué categorías te gustaría que agregue y, si veo que hay suficiente interés, ¡incluso agregaré videos que me mandes</center></a>
+  <a>
+    <center>
+      Descubre contenido increíble! Si este tema te interesa, puedo personalizarlo aún más. Dime qué categorías te gustaría que agregue y, si veo que hay suficiente interés, ¡incluso agregaré videos que me mandes
+    </center>
+  </a>
 </body>
 </html>
