@@ -1,899 +1,299 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Emotional Hub - Categorías</title>
-  <style>
-    /* Estilos generales */
-    body {
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      overflow-x: hidden;
-    }
-    .category-section {
-      margin: 50px 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .section-title {
-      font-size: 2.5em;
-      text-align: center;
-      margin: 40px 0;
-      text-transform: uppercase;
-      letter-spacing: 4px;
-      animation: titleGlow 2s infinite alternate;
-      padding: 10px 20px;
-      border-radius: 10px;
-      will-change: text-shadow;
-    }
-    @keyframes titleGlow {
-      from { text-shadow: 0 0 10px #fff; }
-      to   { text-shadow: 0 0 20px #fff; }
-    }
-    .grid {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 30px;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);
-    }
-    .grid::-webkit-scrollbar {
-      height: 8px;
-    }
-    .grid::-webkit-scrollbar-track {
-      background: rgba(255,255,255,0.1);
-    }
-    .grid::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.3);
-      border-radius: 4px;
-    }
-    .media-card {
-      position: relative;
-      border: 2px solid #fff;
-      border-radius: 15px;
-      overflow: hidden;
-      background: #000;
-      transition: transform 0.3s;
-      flex-shrink: 0;
-      cursor: pointer;
-      background-size: cover;
-      background-position: center;
-      will-change: transform;
-    }
-    /* Dimensiones para secciones YouTube */
-    .songs-spanish .media-card,
-    .songs-english .media-card {
-      flex: 0 0 500px;
-      height: 300px;
-    }
-    /* Dimensiones para secciones TikTok */
-    .tiktok-section .media-card,
-    .hop-core-section .media-card {
-      width: 350px;
-      height: 600px;
-      margin-right: 20px;
-    }
-    .media-card:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px #fff;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      object-fit: cover;
-    }
-    .refresh-info {
-      color: #888;
-      text-align: center;
-      padding: 10px;
-      font-size: 0.9em;
-    }
-    .load-more {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      background: #222;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .play-button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      background: rgba(0,0,0,0.6);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-    }
-    .play-button:before {
-      content: "▶";
-      color: #fff;
-      font-size: 24px;
-    }
-    .back-button { display: none; }
-    /* Spinner de carga */
-    .spinner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 4px solid rgba(255,255,255,0.3);
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      z-index: 5;
-    }
-    @keyframes spin {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    /* Flechas de navegación (solo para desktop) */
-    .nav-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.5);
-      border: none;
-      color: #fff;
-      font-size: 2em;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 10;
-      display: none;
-    }
-    .nav-arrow.left {
-      left: 10px;
-    }
-    .nav-arrow.right {
-      right: 10px;
-    }
-    @media (min-width: 1024px) {
-      .nav-arrow {
-        display: block;
-      }
-    }
-    /* Redes Sociales */
-    .social-section {
-      margin: 50px 0;
-      position: relative;
-      overflow: hidden;
-    }
-    .social-grid {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 30px;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .social-card {
-      position: relative;
-      width: 180px;
-      height: 180px;
-      border-radius: 20px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.4s ease;
-      background: #111;
-      border: 2px solid rgba(255,255,255,0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .social-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 30px rgba(255,255,255,0.2);
-      border-color: rgba(255,255,255,0.6);
-    }
-    .social-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-    }
-    .social-card:hover::before {
-      opacity: 1;
-    }
-    .social-icon {
-      font-size: 50px;
-      margin-bottom: 15px;
-      position: relative;
-      z-index: 2;
-      transition: transform 0.3s ease;
-    }
-    .social-card:hover .social-icon {
-      transform: scale(1.2);
-    }
-    .social-name {
-      font-size: 16px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      position: relative;
-      z-index: 2;
-    }
-    .social-stats {
-      position: absolute;
-      bottom: 10px;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 2;
-    }
-    .social-card:hover .social-stats {
-      opacity: 1;
-    }
-    .instagram { background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D); }
-    .youtube { background: linear-gradient(45deg, #FF0000, #282828); }
-    .twitter { background: linear-gradient(45deg, #1DA1F2, #14171A); }
-    .tiktok { background: linear-gradient(45deg, #000000, #EE1D52, #69C9D0); }
-    .discord { background: linear-gradient(45deg, #5865F2, #2D3136); }
-    .twitch { background: linear-gradient(45deg, #9146FF, #2D3136); }
-    .follow-button {
-      position: absolute;
-      bottom: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 8px 15px;
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      opacity: 0;
-      transition: all 0.3s ease;
-      z-index: 2;
-    }
-    .social-card:hover .follow-button {
-      bottom: 10px;
-      opacity: 1;
-    }
-    .follow-button:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    .social-pulse {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #0f0;
-      z-index: 3;
-    }
-    .social-pulse::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: inherit;
-      opacity: 0.7;
-      z-index: 3;
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 0.7; }
-      70% { transform: scale(2); opacity: 0; }
-      100% { transform: scale(1); opacity: 0; }
-    }
-    .connect-all {
-      display: block;
-      margin: 30px auto;
-      padding: 15px 30px;
-      background: linear-gradient(45deg, #333, #222);
-      color: #fff;
-      border: none;
-      border-radius: 30px;
-      font-size: 18px;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      text-transform: uppercase;
-    }
-    .connect-all::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: all 0.6s ease;
-    }
-    .connect-all:hover::before {
-      left: 100%;
-    }
-    .connect-all:hover {
-      box-shadow: 0 0 20px rgba(255,255,255,0.3);
-      transform: translateY(-3px);
-    }
-    @media (max-width: 768px) {
-      .social-grid {
-        gap: 15px;
-        padding: 10px;
-      }
-      .social-card {
-        width: 130px;
-        height: 130px;
-        padding: 10px;
-      }
-      .social-icon {
-        font-size: 35px;
-        margin-bottom: 10px;
-      }
-      .social-name {
-        font-size: 12px;
-      }
-    }
-    /* Modal QR */
-    .qr-modal {
-      display: none;
-      position: fixed;
-      z-index: 100;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-    .qr-modal-content {
-      position: relative;
-      margin: 10% auto;
-      padding: 20px;
-      width: 300px;
-      background: #fff;
-      border-radius: 10px;
-      text-align: center;
-    }
-    .qr-modal-content img {
-      max-width: 100%;
-      height: auto;
-    }
-    .qr-modal .close {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      color: #000;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <div class="refresh-info">
-    Esta pagina fue creada por si estas triste.
-  </div>
-
-  <!-- Secciones de Videos -->
-  <section class="category-section songs-spanish">
-    <h2 class="section-title">Top Canciones Español</h2>
-    <button class="nav-arrow left" data-target="spanish-songs-grid" data-step="2">&#8592;</button>
-    <div id="spanish-songs-grid" class="grid"></div>
-    <button class="load-more" data-section="spanish-songs-grid">Cargar más</button>
-    <button class="nav-arrow right" data-target="spanish-songs-grid" data-step="2">&#8594;</button>
-  </section>
-
-  <section class="category-section songs-english">
-    <h2 class="section-title">Top Songs English</h2>
-    <button class="nav-arrow left" data-target="english-songs-grid" data-step="2">&#8592;</button>
-    <div id="english-songs-grid" class="grid"></div>
-    <button class="load-more" data-section="english-songs-grid">Cargar más</button>
-    <button class="nav-arrow right" data-target="english-songs-grid" data-step="2">&#8594;</button>
-  </section>
-
-  <section class="category-section hop-core-section">
-    <h2 class="section-title">Hop Core Videos</h2>
-    <button class="nav-arrow left" data-target="hop-core-grid" data-step="3">&#8592;</button>
-    <div id="hop-core-grid" class="grid"></div>
-    <button class="load-more" data-section="hop-core-grid">Cargar más</button>
-    <button class="nav-arrow right" data-target="hop-core-grid" data-step="3">&#8594;</button>
-  </section>
-
-  <section class="category-section tiktok-section">
-    <h2 class="section-title">TikTok Viral</h2>
-    <button class="nav-arrow left" data-target="tiktok-grid" data-step="3">&#8592;</button>
-    <div id="tiktok-grid" class="grid"></div>
-    <button class="load-more" data-section="tiktok-grid">Cargar más</button>
-    <button class="nav-arrow right" data-target="tiktok-grid" data-step="3">&#8594;</button>
-  </section>
-  
-  <!-- Redes Sociales -->
-  <section class="social-section">
-    <h2 class="section-title">Mis Redes Sociales</h2>
-    <div class="social-grid">
-      <div class="social-card tiktok">
-        <div class="social-icon">🎵</div>
-        <div class="social-name">TikTok</div>
-        <div class="social-stats">138 seguidores</div>
-        <div class="social-pulse"></div>
-        <button class="follow-button" data-link="https://www.tiktok.com/@alex_2044_13?is_from_webapp=1&sender_device=pc">Seguir</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111111" />
+    <meta
+      name="description"
+      content="Un pequeño refugio para tus emociones. Explora música y videos, guarda tus favoritos y encuentra algo que conecte contigo."
+    />
+    <meta property="og:title" content="Emotional — un espacio para sentir" />
+    <meta
+      property="og:description"
+      content="Música, pequeñas pausas y videos para acompañar tu día."
+    />
+    <meta property="og:type" content="website" />
+    <title>Emotional — un espacio para sentir</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script src="assets/catalog.js" defer></script>
+    <script src="assets/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#explorar">Saltar al contenido</a>
+    <header class="site-header wrap">
+      <a class="brand" href="#" aria-label="Emotional, inicio"
+        ><span class="brand-mark" aria-hidden="true">e</span>emotional<span
+          class="brand-dot"
+          >.</span
+        ></a
+      >
+      <nav aria-label="Navegación principal">
+        <a class="nav-link" href="#explorar">Explorar</a
+        ><button class="nav-link" id="nav-favorites">
+          Favoritos <span id="favorite-count">0</span></button
+        ><a class="nav-link community-nav" href="#comunidad">Comunidad ↗</a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="status-dot" aria-hidden="true"></span> TU PEQUEÑO
+            REFUGIO EN INTERNET
+          </p>
+          <h1 id="hero-title">Está bien<br />sentir <em>mucho.</em></h1>
+          <p class="hero-description">
+            Hay días para cantar, otros para soltar.<br />Encuentra algo que te
+            acompañe, a tu ritmo.
+          </p>
+          <a class="button primary" href="#explorar"
+            >Encuentra tu momento <span aria-hidden="true">↗</span></a
+          >
+          <div class="hero-caption">
+            <span class="tiny-stars" aria-hidden="true">✳</span> Sin prisa. Sin
+            tener que explicar nada.
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="orbit orbit-three"></div>
+          <div class="art-grain"></div>
+          <div class="floating-note note-one">♪</div>
+          <div class="floating-note note-two">✦</div>
+          <div class="art-center">
+            take a<br /><em>little breath.</em
+            ><span>INHALA · EXHALA · SIGUE</span>
+          </div>
+          <div class="art-label">UN MOMENTO PARA TI <span>↗</span></div>
+        </div>
+        <div class="hero-bottom">
+          <span>Un lugar para conectar contigo.</span
+          ><span>MÚSICA & EMOCIONES <span aria-hidden="true">↓</span></span>
+        </div>
+      </section>
+      <section
+        class="discovery wrap"
+        id="explorar"
+        aria-labelledby="discovery-title"
+        tabindex="-1"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">DALE PLAY A LO QUE SIENTES</p>
+            <h2 id="discovery-title">Tu siguiente <em>momento.</em></h2>
+          </div>
+          <p>Música y pequeñas historias.<br />Tú eliges por dónde empezar.</p>
+        </div>
+        <div class="toolbar">
+          <div class="filters" role="group" aria-label="Filtrar contenido">
+            <button class="filter active" data-filter="all" aria-pressed="true">
+              Todo <span>✦</span></button
+            ><button class="filter" data-filter="spanish" aria-pressed="false">
+              En español</button
+            ><button class="filter" data-filter="english" aria-pressed="false">
+              En inglés</button
+            ><button class="filter" data-filter="hope" aria-pressed="false">
+              Hope core</button
+            ><button class="filter" data-filter="tiktok" aria-pressed="false">
+              TikTok</button
+            ><button
+              class="filter"
+              data-filter="favorites"
+              aria-pressed="false"
+            >
+              ♡ Favoritos
+            </button>
+          </div>
+          <button class="shuffle-button" id="shuffle">
+            ⇄ <span>Mezclar</span>
+          </button>
+        </div>
+        <div class="search-row">
+          <label class="search-box"
+            ><span aria-hidden="true">⌕</span
+            ><input
+              id="search"
+              type="search"
+              placeholder="Busca una categoría o un creador…"
+              aria-label="Buscar por categoría o creador"
+              autocomplete="off"
+          /></label>
+          <p id="result-count" role="status" aria-live="polite"></p>
+        </div>
+        <div id="catalog"></div>
+        <div class="empty-state" id="empty" hidden>
+          <span aria-hidden="true">♡</span>
+          <h3 id="empty-title">Tu espacio empieza aquí.</h3>
+          <p id="empty-description">
+            Guarda un video con el corazón para volver a encontrarlo.
+          </p>
+          <button class="button secondary" id="clear-filters">
+            Explorar todo
+          </button>
+        </div>
+      </section>
+      <aside class="pause-card wrap">
+        <span class="pause-symbol" aria-hidden="true">✳</span>
+        <p>No tienes que tener<br /><em>todo resuelto hoy.</em></p>
+        <span class="pause-caption">UNA COSA A LA VEZ.</span>
+      </aside>
+      <section
+        class="community wrap"
+        id="comunidad"
+        aria-labelledby="community-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">SIGAMOS CERCA</p>
+            <h2 id="community-title">
+              Esto se siente mejor<br /><em>en compañía.</em>
+            </h2>
+          </div>
+          <p>
+            Más momentos, fuera de aquí.<br />Encuéntranos en nuestras redes.
+          </p>
+        </div>
+        <div class="community-grid">
+          <a
+            class="community-card"
+            href="https://www.tiktok.com/@alex_2044_13"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><span class="community-icon" aria-hidden="true">♪</span
+            ><span
+              ><strong>TikTok</strong
+              ><small>Un poco de inspiración diaria</small></span
+            ><span aria-hidden="true">↗</span></a
+          ><a
+            class="community-card"
+            href="https://whatsapp.com/channel/0029VbAlKu2HLHQfOSICf31R"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><span class="community-icon" aria-hidden="true">↗</span
+            ><span
+              ><strong>WhatsApp</strong
+              ><small>Únete a nuestro canal</small></span
+            ><span aria-hidden="true">↗</span></a
+          ><button class="community-card" id="open-yape">
+            <span class="community-icon" aria-hidden="true">♡</span
+            ><span
+              ><strong>Apoya este espacio</strong
+              ><small>Un aporte voluntario con Yape</small></span
+            ><span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <a class="brand" href="#">emotional<span class="brand-dot">.</span></a>
+      <p>Hecho para acompañarte. A tu ritmo.</p>
+      <button class="text-button" id="open-privacy">
+        Privacidad y contenido</button
+      ><a href="#" aria-label="Volver al inicio">↑</a>
+    </footer>
+    <dialog
+      id="player-dialog"
+      class="player-dialog"
+      aria-labelledby="player-title"
+    >
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow" id="player-platform"></p>
+          <h2 id="player-title">Tu momento</h2>
+        </div>
+        <button class="icon-button" id="close-player" aria-label="Cerrar video">
+          ×
+        </button>
       </div>
-      <div class="social-card whatsapp">
-        <div class="social-icon">➤</div>
-        <div class="social-name">Whatsapp</div>
-        <div class="social-stats">0 miembros</div>
-        <button class="follow-button" data-link="https://whatsapp.com/channel/0029VbAlKu2HLHQfOSICf31R">Unirse</button>
+      <div id="player-stage" class="player-stage"></div>
+      <p
+        id="player-status"
+        class="player-status"
+        role="status"
+        aria-live="polite"
+      ></p>
+      <div class="player-actions">
+        <button class="button secondary" id="retry-player" hidden>
+          Reintentar</button
+        ><a
+          class="button primary"
+          id="external-video"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Abrir en la plataforma ↗</a
+        >
       </div>
-      <div class="social-card twitch">
-        <div class="social-icon">📲</div>
-        <div class="social-name">Yape</div>
-        <div class="social-stats">Yapea me, mi king o queen</div>
-        <button class="follow-button" data-link="yape.html">Yapear?</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Modal QR -->
-  <div id="qr-modal" class="qr-modal">
-    <div class="qr-modal-content">
-      <span class="close">&times;</span>
-      <img src="imagenes/WhatsApp Image 2025-03-31 at 8.53.44 PM.jpeg" alt="Código QR Yape">
-    </div>
-  </div>
-
-  <!-- Script principal -->
-  <script>
-    // Cargar la API de YouTube
-    (function loadYouTubeAPI() {
-      const script = document.createElement('script');
-      script.src = "https://www.youtube.com/iframe_api";
-      script.async = true;
-      document.head.appendChild(script);
-    })();
-
-    let currentPlaying = null;
-    let ytPlayers = {};
-
-    // Datos de videos
-    const videoData = {
-      spanishSongs: [
-        "bUkJLkoh3kA", "J4dXwgaMNTs",
-        "dkWuczbmkIo", "QZKrLIoMyxY",
-        "iHSnLRrEC10", "ET4fuz2ROvw",
-        "vldYYjCQ7jc", "l5wj30L6hsE", "pfljCti1z20",
-        "qExd-3oCTl4", "XoJNjj81eOM", "AaLIvfR6Tw0"
-      ],
-      englishSongs: [
-        "kEpON9AqdMY", "Oextk-If8HQ", "H5v3kku4y6Q", "_jEP347F6_g", "pXRviuL6vMY", "UrriF1AvgLY"
-      ],
-      hopCoreVideos: [
-        { id:"7402331099239681313", user:"leakersclub" },
-        { id:"7386718346655304966", user:"cap31_xtlv" },
-        { id:"7299974692549512454", user:"naruto.dbz" },
-        { id:"7457036112553315590", user:"elflasssh" },
-        { id:"7358620709431610630", user:"4life_arg" },
-        { id:"7486327554324892950", user:"frases_de_triline1" },
-        { id:"7474323098951486725", user:"lycs_bedumb" },
-        { id:"7412154285095505158", user:"sanchez.nicolas" },
-        { id:"7471070704415378710", user:"narrador_ocult0_" },
-        { id:"7396268718835125509", user:"valulove54"},
-        { id:"7487627588521823543", user:"music4.444"},
-        { id:"7114431091968199962", user:"kobssantos"}, 
-        { id:"7466928105647607046", user:"melhor_vibes"}, 
-        { id:"7476709350300519735", user:"songsyedits4500"},
-        { id:"7466928105647607046", user:"melhor_vibes"},
-        { id:"7484218795473521928", user:"gppkokk__"},
-        { id:"7488231473254862085", user:"fraasesrojas"},
-        { id:"7480711708487486738", user:"xsmvl"},
-        { id:"7483332611536932102", user:"garciaatzel"},
-        { id:"7488231473254862085", user:"fraasesrojas"},
-
-      ],
-      tiktokVideos: [
-        { id:"7478029000820919574", user:"elartedeempezar" },
-        { id:"7482906392022617349", user:"basixmexico" },
-        { id:"7423780379103939846", user:"nsnlxdoficia" },
-        { id:"7431583859533253894", user:"hypemotivacion" },
-        { id:"7408146275108998405", user:"hextorzz" },
-        { id:"7482044031426497798", user:"naufragio01"},
-        { id:"7479041692931378450", user:"paulthenostalgia"},
-        { id:"7484072796096646455", user:"rolaspiolass"}
-      ]
-    };
-
-    const config = {
-      batchSize: 3,
-      currentIndexes: {
-        "spanish-songs-grid": 0,
-        "english-songs-grid": 0,
-        "hop-core-grid": 0,
-        "tiktok-grid": 0
-      },
-      videoCache: {},
-      observerThreshold: 0.1
-    };
-
-    // Eliminar duplicados y mezclar arreglos
-    function deduplicateArray(arr) {
-      return [...new Map(arr.map(item => {
-        const key = (typeof item === 'object') ? `${item.id}-${item.user}` : item;
-        return [key, item];
-      })).values()];
-    }
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    // Procesar datos
-    const processedData = {};
-    for (const [key, value] of Object.entries(videoData)) {
-      const deduplicated = deduplicateArray(value);
-      processedData[key] = shuffleArray(deduplicated);
-    }
-
-    // Revertir video activo
-    function revertVideo(videoInfo) {
-      if (!videoInfo || !videoInfo.card || !videoInfo.container) return;
-      if (videoInfo.type === 'youtube') {
-        if (ytPlayers[videoInfo.id]) {
-          ytPlayers[videoInfo.id].destroy();
-          delete ytPlayers[videoInfo.id];
-        }
-        const preview = createYouTubePlaceholder(videoInfo.id);
-        videoInfo.container.replaceChild(preview, videoInfo.card);
-      } else if (videoInfo.type === 'tiktok') {
-        const placeholder = createTikTokPlaceholder(videoInfo.data);
-        videoInfo.container.replaceChild(placeholder, videoInfo.card);
-      }
-      currentPlaying = null;
-    }
-
-    // Placeholder para YouTube
-    function createYouTubePlaceholder(id) {
-      const card = document.createElement('div');
-      card.className = 'media-card';
-      card.dataset.background = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
-      card.innerHTML = `<div class="play-button"></div>`;
-      observeElement(card);
-
-      card.addEventListener('click', () => {
-        if (currentPlaying && currentPlaying.card !== card) {
-          revertVideo(currentPlaying);
-        }
-        const youtubeCard = document.createElement('div');
-        youtubeCard.className = 'media-card';
-        youtubeCard.style.position = 'relative';
-
-        // Spinner de carga
-        const spinner = document.createElement('div');
-        spinner.className = 'spinner';
-        youtubeCard.appendChild(spinner);
-
-        const containerId = 'player_' + id + '_' + Date.now();
-        const playerContainer = document.createElement('div');
-        playerContainer.id = containerId;
-        youtubeCard.appendChild(playerContainer);
-        card.parentNode.replaceChild(youtubeCard, card);
-
-        const player = new YT.Player(containerId, {
-          videoId: id,
-          playerVars: {
-            controls: 1,
-            rel: 0,
-            modestbranding: 1
-          },
-          events: {
-            onReady: (event) => {
-              event.target.playVideo();
-              spinner.style.display = 'none';
-            },
-            onStateChange: (event) => {
-              if (event.data === YT.PlayerState.ENDED) {
-                revertVideo({
-                  type: 'youtube',
-                  id: id,
-                  card: youtubeCard,
-                  container: youtubeCard.parentNode
-                });
-              }
-            }
-          }
-        });
-        ytPlayers[id] = player;
-        currentPlaying = {
-          type: 'youtube',
-          id: id,
-          card: youtubeCard,
-          container: youtubeCard.parentNode
-        };
-      });
-      return card;
-    }
-
-    // Placeholder para TikTok
-    function createTikTokPlaceholder(data) {
-      const card = document.createElement('div');
-      card.className = 'media-card';
-      card.dataset.background = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='350' height='600' viewBox='0 0 350 600'%3E%3Crect width='100%25' height='100%25' fill='%23222'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23444' font-size='24px'%3ECargando...%3C/text%3E%3C/svg%3E";
-      card.innerHTML = `<div class="play-button"></div>`;
-      observeElement(card);
-
-      const tiktokUrl = `https://www.tiktok.com/@${data.user}/video/${data.id}`;
-      const cacheKey = `${data.user}-${data.id}`;
-      if (config.videoCache[cacheKey]) {
-        card.dataset.background = config.videoCache[cacheKey];
-      } else {
-        try {
-          const oEmbedURL = `https://www.tiktok.com/oembed?url=${encodeURIComponent(tiktokUrl)}`;
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-          fetch(oEmbedURL, { signal: controller.signal })
-            .then(response => response.json())
-            .then(info => {
-              clearTimeout(timeoutId);
-              if (info.thumbnail_url) {
-                config.videoCache[cacheKey] = info.thumbnail_url;
-                if (card.parentNode) {
-                  card.style.backgroundImage = `url('${info.thumbnail_url}')`;
-                }
-              }
-            })
-            .catch(err => {
-              clearTimeout(timeoutId);
-              console.warn("Error al obtener miniatura TikTok:", err);
-            });
-        } catch (err) {
-          console.warn("Error al iniciar fetch para TikTok:", err);
-        }
-      }
-
-      card.addEventListener('click', () => {
-        if (currentPlaying && currentPlaying.card !== card) {
-          revertVideo(currentPlaying);
-        }
-        const newCard = createTikTokIframe(data);
-        card.parentNode.replaceChild(newCard, card);
-        currentPlaying = {
-          type: 'tiktok',
-          data: data,
-          card: newCard,
-          container: newCard.parentNode
-        };
-      });
-      return card;
-    }
-
-    // Iframe para TikTok
-    function createTikTokIframe(data) {
-      const card = document.createElement('div');
-      card.className = 'media-card';
-      card.style.position = 'relative';
-
-      const spinner = document.createElement('div');
-      spinner.className = 'spinner';
-      card.appendChild(spinner);
-
-      card.innerHTML += `
-        <iframe
-          src="https://www.tiktok.com/embed/v2/${data.id}?lang=es&show_text=0&playsinline=1&muted=0"
-          style="width:100%;height:100%;border:none;overflow:hidden;"
-          scrolling="no"
-          allow="autoplay"
-          onload="this.parentNode.querySelector('.spinner').style.display='none';"
-        ></iframe>
-      `;
-      return card;
-    }
-
-    // Intersection Observer para cargar miniaturas
-    let observer;
-    function setupIntersectionObserver() {
-      observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const element = entry.target;
-            if (element.dataset.background) {
-              element.style.backgroundImage = `url('${element.dataset.background}')`;
-              delete element.dataset.background;
-              observer.unobserve(element);
-            }
-          }
-        });
-      }, {
-        rootMargin: '100px',
-        threshold: config.observerThreshold
-      });
-    }
-    function observeElement(element) {
-      if (observer) {
-        observer.observe(element);
-      } else if ('IntersectionObserver' in window) {
-        setupIntersectionObserver();
-        observer.observe(element);
-      } else {
-        element.style.backgroundImage = `url('${element.dataset.background}')`;
-        delete element.dataset.background;
-      }
-    }
-
-    // Cargar lote de videos en una sección
-    async function loadBatch(sectionId, videos) {
-      const section = document.getElementById(sectionId);
-      if (!section) return;
-      const fragment = document.createDocumentFragment();
-      const index = config.currentIndexes[sectionId];
-      const promises = [];
-
-      for (let i = index; i < index + config.batchSize && i < videos.length; i++) {
-        const video = videos[i];
-        let cardPromise;
-        if (typeof video === 'object' && video.id && video.user) {
-          cardPromise = createTikTokPlaceholder(video);
-        } else {
-          cardPromise = createYouTubePlaceholder(video);
-        }
-        promises.push(Promise.resolve(cardPromise).then(card => {
-          fragment.appendChild(card);
-        }));
-      }
-
-      await Promise.all(promises);
-      section.appendChild(fragment);
-      config.currentIndexes[sectionId] += config.batchSize;
-
-      // Si se han cargado todos los videos, se oculta el botón "Cargar más"
-      const loadMoreButton = document.querySelector(`button.load-more[data-section="${sectionId}"]`);
-      if (config.currentIndexes[sectionId] >= videos.length && loadMoreButton) {
-        loadMoreButton.style.display = 'none';
-      }
-    }
-
-    // Desplazamiento con flechas
-    function scrollGrid(gridId, step) {
-      const grid = document.getElementById(gridId);
-      if (!grid) return;
-      const cardWidth = grid.querySelector('.media-card').offsetWidth + 30;
-      grid.scrollBy({ left: cardWidth * step, behavior: 'smooth' });
-    }
-
-    // Eventos de flechas
-    document.querySelectorAll('.nav-arrow').forEach(arrow => {
-      arrow.addEventListener('click', () => {
-        const target = arrow.getAttribute('data-target');
-        const step = parseInt(arrow.getAttribute('data-step'));
-        if (arrow.classList.contains('left')) {
-          scrollGrid(target, -step);
-        } else {
-          scrollGrid(target, step);
-        }
-      });
-    });
-
-    // Variable para saber qué sección estaba activa
-    let lastActiveSection = null;
-    // Función para reiniciar una sección (vuelve a cargar desde cero) y revierte el video activo si existe en ella
-    function resetSection(sectionId) {
-      const grid = document.getElementById(sectionId);
-      if (grid) {
-        if (currentPlaying && grid.contains(currentPlaying.card)) {
-          revertVideo(currentPlaying);
-        }
-        grid.innerHTML = "";
-        config.currentIndexes[sectionId] = 0;
-        const loadMoreBtn = document.querySelector(`button.load-more[data-section="${sectionId}"]`);
-        if (loadMoreBtn) {
-          loadMoreBtn.style.display = 'block';
-        }
-        switch (sectionId) {
-          case 'spanish-songs-grid':
-            loadBatch(sectionId, processedData.spanishSongs);
-            break;
-          case 'english-songs-grid':
-            loadBatch(sectionId, processedData.englishSongs);
-            break;
-          case 'hop-core-grid':
-            loadBatch(sectionId, processedData.hopCoreVideos);
-            break;
-          case 'tiktok-grid':
-            loadBatch(sectionId, processedData.tiktokVideos);
-            break;
-        }
-      }
-    }
-
-    // Listener para "Cargar más"
-    document.querySelectorAll('.load-more').forEach(button => {
-      button.addEventListener('click', () => {
-        const sectionId = button.getAttribute('data-section');
-        // Si cambiamos de sección, reiniciamos la anterior
-        if (lastActiveSection && lastActiveSection !== sectionId) {
-          resetSection(lastActiveSection);
-        }
-        lastActiveSection = sectionId;
-        // No se revierte el video si estamos en la misma sección para que no se detenga la reproducción
-        switch (sectionId) {
-          case 'spanish-songs-grid':
-            loadBatch(sectionId, processedData.spanishSongs);
-            break;
-          case 'english-songs-grid':
-            loadBatch(sectionId, processedData.englishSongs);
-            break;
-          case 'hop-core-grid':
-            loadBatch(sectionId, processedData.hopCoreVideos);
-            break;
-          case 'tiktok-grid':
-            loadBatch(sectionId, processedData.tiktokVideos);
-            break;
-        }
-      });
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadBatch('spanish-songs-grid', processedData.spanishSongs);
-      loadBatch('english-songs-grid', processedData.englishSongs);
-      loadBatch('hop-core-grid', processedData.hopCoreVideos);
-      loadBatch('tiktok-grid', processedData.tiktokVideos);
-
-      // Botones de redes sociales
-      document.querySelectorAll('.follow-button').forEach(button => {
-        button.addEventListener('click', () => {
-          const link = button.getAttribute('data-link');
-          if (link === "yape.html") {
-            document.getElementById("qr-modal").style.display = "block";
-          } else if (link && link.trim() !== "") {
-            window.open(link, "_blank");
-          }
-        });
-      });
-
-      // Cerrar modal QR
-      document.querySelector(".qr-modal .close").addEventListener("click", () => {
-        document.getElementById("qr-modal").style.display = "none";
-      });
-      window.addEventListener("click", (event) => {
-        if (event.target === document.getElementById("qr-modal")) {
-          document.getElementById("qr-modal").style.display = "none";
-        }
-      });
-    });
-  </script>
-  <a>
-    <center>
-      Descubre contenido increíble! Si este tema te interesa, puedo personalizarlo aún más. Dime qué categorías te gustaría que agregue y, si veo que hay suficiente interés, ¡incluso agregaré videos que me mandes
-    </center>
-  </a>
-</body>
+      <p class="dialog-note">
+        La reproducción depende de YouTube o TikTok. Si un video no está
+        disponible aquí, prueba abrirlo en su plataforma.
+      </p>
+    </dialog>
+    <dialog id="yape-dialog" class="small-dialog" aria-labelledby="yape-title">
+      <button
+        class="icon-button close-dialog"
+        data-close="yape-dialog"
+        aria-label="Cerrar donaciones"
+      >
+        ×
+      </button>
+      <p class="eyebrow">GRACIAS POR ESTAR AQUÍ</p>
+      <h2 id="yape-title">Un pequeño <em>apoyo.</em></h2>
+      <p>
+        Si te gusta este espacio, puedes hacer un aporte voluntario. Revisa el
+        destinatario en Yape antes de confirmar.
+      </p>
+      <img
+        src="assets/yape-qr.jpg"
+        width="300"
+        height="300"
+        loading="lazy"
+        alt="Código QR para un aporte voluntario por Yape"
+      />
+    </dialog>
+    <dialog
+      id="privacy-dialog"
+      class="small-dialog"
+      aria-labelledby="privacy-title"
+    >
+      <button
+        class="icon-button close-dialog"
+        data-close="privacy-dialog"
+        aria-label="Cerrar privacidad"
+      >
+        ×
+      </button>
+      <p class="eyebrow">TU ESPACIO, TUS DECISIONES</p>
+      <h2 id="privacy-title">Privacidad y contenido</h2>
+      <p>
+        Emotional no usa cuentas, base de datos ni analítica propia. Los
+        favoritos se guardan solo en este navegador. Puedes borrarlos cuando
+        quieras.
+      </p>
+      <p>
+        Las miniaturas de YouTube se cargan desde sus servidores. Al reproducir
+        un video se carga contenido externo de YouTube o TikTok, sujeto a sus
+        políticas y disponibilidad.
+      </p>
+      <p>
+        Los videos pertenecen a sus respectivos autores. Los enlaces sociales
+        abren servicios externos en otra pestaña.
+      </p>
+      <button class="button secondary" id="erase-favorites">
+        Borrar mis favoritos
+      </button>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <noscript
+      ><p class="noscript">
+        Activa JavaScript para explorar los videos. También puedes encontrarnos
+        en <a href="https://www.tiktok.com/@alex_2044_13">TikTok</a> y
+        <a href="https://whatsapp.com/channel/0029VbAlKu2HLHQfOSICf31R"
+          >WhatsApp</a
+        >.
+      </p></noscript
+    >
+  </body>
 </html>

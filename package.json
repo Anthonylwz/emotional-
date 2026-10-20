@@ -1,0 +1,13 @@
+{
+  "name": "emotional-hub",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "check": "node --check assets/app.js && node --check assets/catalog.js",
+    "test": "node --test tests/browser.test.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
